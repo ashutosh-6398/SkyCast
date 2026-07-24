@@ -58,6 +58,22 @@ The application will be live at **`http://localhost:8080`**.
 
 ---
 
+## 🌐 Deploy to Render
+
+To host the dynamic backend on [Render](https://render.com) for free:
+
+1. Create a **Web Service** on Render and connect your GitHub repository.
+2. Set the following build options:
+   - **Build Command:** `npm install`
+   - **Start Command:** `npm start`
+3. Add these key-value pairs in **Environment Variables**:
+   - `OPENWEATHER_API_KEY`: *Your OpenWeatherMap API key*
+   - `SUPABASE_URL`: *Your Supabase Project URL*
+   - `SUPABASE_KEY`: *Your Supabase Anon Key*
+4. Deploy the service.
+
+---
+
 ## 📂 Project Structure
 
 ```
