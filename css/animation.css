@@ -1,0 +1,137 @@
+/* ==========================================================
+   SKYCAST WEATHER APP - ANIMATIONS LAYER
+   ========================================================== */
+
+/* --- Parallax Floating Ambient Orbs --- */
+.cloud {
+  animation: floatCloud 35s linear infinite;
+  will-change: transform;
+}
+.cloud1 { animation-duration: 42s; }
+.cloud2 { animation-duration: 50s; }
+.cloud3 { animation-duration: 60s; }
+
+@keyframes floatCloud {
+  from { transform: translateX(-260px); }
+  to { transform: translateX(100vw); }
+}
+
+/* --- Core Interaction Transitions --- */
+.glass,
+.weather-card,
+.highlight-card,
+.hour-card,
+.forecast-item,
+.recent-searches li {
+  transition: transform 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
+}
+
+.glass:hover {
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28);
+}
+
+/* --- Premium Glassmorphism Shine Effect --- */
+.glass {
+  position: relative;
+  overflow: hidden;
+}
+
+.glass::after {
+  content: "";
+  position: absolute;
+  top: -120%;
+  left: -40%;
+  width: 40%;
+  height: 300%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.18),
+    transparent
+  );
+  transform: rotate(20deg);
+  transition: transform 0.8s ease;
+  pointer-events: none;
+}
+
+.glass:hover::after {
+  transform: translate(350%, 10%);
+}
+
+/* --- Floating Weather Branding Icon --- */
+#weatherIcon {
+  animation: iconFloat 3.5s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* --- Global Button Responses --- */
+button {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+button:hover {
+  transform: translateY(-2px);
+}
+button:active {
+  transform: scale(0.96);
+}
+
+/* --- Search Focus Interaction --- */
+.search-box input:focus {
+  animation: focusGlow 0.6s ease forwards;
+}
+
+@keyframes focusGlow {
+  from { box-shadow: 0 0 0 rgba(79, 172, 254, 0); }
+  to { box-shadow: 0 0 20px rgba(79, 172, 254, 0.45); }
+}
+
+/* --- Entry Animations --- */
+.fade-in {
+  animation: fadeIn 0.6s ease both;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-up {
+  animation: slideUp 0.7s ease both;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Dynamic Microphone & Audio Pulses --- */
+.pulse {
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(79, 172, 254, 0.6); }
+  70% { box-shadow: 0 0 0 18px rgba(79, 172, 254, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(79, 172, 254, 0); }
+}
+
+#voiceBtn.listening {
+  animation: voiceBreath 1.2s ease-in-out infinite;
+  background: #ef4444 !important;
+}
+
+@keyframes voiceBreath {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+
+/* --- Navigation Controls --- */
+#scrollTopBtn.show {
+  animation: bounceIn 0.4s ease forwards;
+}
+@keyframes bounceIn {
+  0% { opacity: 0; transform: scale(0.5); }
+  70% { transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}

@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="theme-color" content="#4facfe" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+    <link rel="manifest" href="manifest.json" />
+
+    <title>SkyCast | Premium Interactive Weather Application</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- Leaflet.js Radar Maps CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Application CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/card.css">
+    <link rel="stylesheet" href="css/animation.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+
+<body>
+
+    <!-- ================= BACKGROUND AMBIENT & PARTICLE CANVAS ================= -->
+    <div class="background">
+        <canvas id="weatherCanvas" class="weather-canvas"></canvas>
+        <div class="gradient"></div>
+        <div class="cloud cloud1"></div>
+        <div class="cloud cloud2"></div>
+        <div class="cloud cloud3"></div>
+    </div>
+
+    <!-- ================= NAVBAR ================= -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <i class="fa-solid fa-cloud-sun"></i>
+                <h2>SkyCast</h2>
+            </div>
+
+            <div class="nav-right">
+                <div class="unit-toggle-header">
+                    <button class="unit-btn active" id="celsiusBtn" title="Metric (°C)">°C</button>
+                    <button class="unit-btn" id="fahrenheitBtn" title="Imperial (°F)">°F</button>
+                </div>
+
+                <button id="compareBtn" class="nav-compare-btn" title="Compare 2 Cities Side-by-Side">
+                    <i class="fa-solid fa-code-compare"></i> <span class="nav-btn-text">Compare</span>
+                </button>
+
+                <button id="exportPdfBtn" class="nav-export-btn" title="Export PDF Weather & AQI Report">
+                    <i class="fa-solid fa-file-pdf"></i> <span class="nav-btn-text">Export PDF</span>
+                </button>
+
+                <button id="storyBtn" class="nav-export-btn" title="Share Weather Story / Social Snapshot">
+                    <i class="fa-solid fa-camera"></i> <span class="nav-btn-text">Share Story</span>
+                </button>
+
+                <button id="soundBtn" title="Toggle Weather Audio Soundscape">
+                    <i class="fa-solid fa-volume-xmark" id="soundIcon"></i>
+                </button>
+
+                <button id="locationBtn" title="Detect Current Location">
+                    <i class="fa-solid fa-location-crosshairs"></i>
+                </button>
+
+                <button id="alertBtn" class="nav-alert-btn" title="Weather Alert & Notification Manager">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </button>
+
+                <button id="pwaInstallBtn" class="hidden" title="Install SkyCast App">
+                    <i class="fa-solid fa-download"></i>
+                </button>
+
+                <button id="themeBtn" class="theme-toggle-switch" title="Toggle Light/Dark Theme">
+                    <span class="theme-option light-opt"><i class="fa-solid fa-sun"></i></span>
+                    <span class="theme-option dark-opt"><i class="fa-solid fa-moon"></i></span>
+                    <span class="theme-slider-thumb"></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ================= MAIN APP CONTAINER ================= -->
+    <main class="container">
+
+        <!-- ================= LEFT PANEL ================= -->
+        <section class="left-panel">
+
+            <!-- Search Bar & Popular Quick Search Tags -->
+            <div class="search-section">
+                <div class="search-box">
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="cityInput" placeholder="Search any city worldwide..." autocomplete="off" />
+                        <div class="autocomplete-dropdown hidden" id="autocompleteDropdown"></div>
+                    </div>
+                    <button id="searchBtn" title="Search City">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+                <!-- Quick City Tags -->
+                <div class="quick-cities">
+                    <span class="quick-tag" data-city="London">🇬🇧 London</span>
+                    <span class="quick-tag" data-city="New York">🇺🇸 New York</span>
+                    <span class="quick-tag" data-city="Tokyo">🇯🇵 Tokyo</span>
+                    <span class="quick-tag" data-city="Paris">🇫🇷 Paris</span>
+                    <span class="quick-tag" data-city="Dubai">🇦🇪 Dubai</span>
+                </div>
+            </div>
+
+            <!-- Smart Weather Alert & Recommendation Banner -->
+            <div class="glass weather-alert-banner hidden" id="weatherAlert">
+                <div class="alert-content">
+                    <i class="fa-solid fa-triangle-exclamation alert-icon" id="alertIcon"></i>
+                    <div>
+                        <h4 id="alertTitle">Weather Notice</h4>
+                        <p id="alertText">Loading recommendations...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View Mode Switcher Bar (AQI vs Weather Segmented Switch & Share Action) -->
+            <div class="view-mode-bar">
+                <div class="mode-switch-tabs">
+                    <button class="mode-tab active" id="tabWeather">
+                        <span class="tab-icon">☀️</span> Weather
+                    </button>
+                    <button class="mode-tab" id="tabAQI">
+                        <span class="tab-icon">💨</span> AQI
+                    </button>
+                </div>
+                <div class="mode-actions">
+                    <button class="action-btn" id="shareBtn" title="Share Weather Details">
+                        <i class="fa-solid fa-share-nodes"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Current Weather Hero Card -->
+            <div class="weather-card glass" id="weatherCardView">
+                <div class="weather-header">
+                    <div>
+                        <div class="city-title-row">
+                            <h1 id="cityName">Delhi, IN</h1>
+                            <button id="favoriteBtn" class="fav-toggle-btn" title="Save to Favorites">
+                                <i class="fa-regular fa-star" id="favoriteIcon"></i>
+                            </button>
+                        </div>
+                        <p id="date">Monday, 7 July</p>
+                    </div>
+                    <div class="icon-badge-wrapper">
+                        <img id="weatherIcon" src="https://openweathermap.org/img/wn/01d@2x.png" alt="Weather Condition">
+                    </div>
+                </div>
+
+                <div class="temperature">
+                    <h2><span id="temp">31</span><span class="deg-symbol">°</span></h2>
+                    <p id="weatherCondition">Clear Sky</p>
+                </div>
+
+                <div class="extra-info">
+                    <div>
+                        <i class="fa-solid fa-temperature-high"></i>
+                        <span>Feels Like</span>
+                        <strong id="feelsLike">33°</strong>
+                    </div>
+                    <div>
+                        <i class="fa-solid fa-droplet"></i>
+                        <span>Humidity</span>
+                        <strong id="humidity">62%</strong>
+                    </div>
+                    <div>
+                        <i class="fa-solid fa-wind"></i>
+                        <span>Wind Speed</span>
+                        <strong id="wind">8 km/h</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Radar Map -->
+            <div class="glass radar-section">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-map-location-dot"></i> Live Weather & Radar</h2>
+                    <div class="map-layer-controls">
+                        <button class="layer-btn active" id="rainLayerBtn">Radar</button>
+                        <button class="layer-btn" id="cloudsLayerBtn">Clouds</button>
+                    </div>
+                </div>
+                <div id="radarMap" class="radar-map-container"></div>
+            </div>
+
+        </section>
+
+        <!-- ================= RIGHT PANEL ================= -->
+        <aside class="right-panel">
+
+            <!-- Pinned Favorite Cities -->
+            <div class="glass favorites-card">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-star"></i> Favorite Cities</h2>
+                </div>
+                <div id="favoriteList" class="favorites-grid">
+                    <p class="empty-favs">No favorite cities added yet. Click the star on any city to pin it!</p>
+                </div>
+            </div>
+
+            <!-- Hourly Forecast & Visual Trend Chart -->
+            <div class="glass hourly-section">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-clock"></i> 24-Hour Forecast</h2>
+                </div>
+                <!-- Visual Trend Canvas -->
+                <div class="chart-wrapper">
+                    <canvas id="hourlyChart"></canvas>
+                </div>
+                <!-- Scrollable Hour Cards -->
+                <div class="hourly-container"></div>
+            </div>
+
+            <!-- 5-Day Forecast -->
+            <div class="glass forecast-section">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-calendar-days"></i> 5-Day Forecast</h2>
+                </div>
+                <div class="forecast-list"></div>
+            </div>
+
+            <!-- Recent Searches History -->
+            <div class="glass recent-searches">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-clock-rotate-left"></i> Recent Searches</h2>
+                    <button id="clearHistoryBtn" class="clear-btn">Clear</button>
+                </div>
+                <ul id="historyList" class="history-chips"></ul>
+            </div>
+
+            <!-- ================= AQI.IN INSPIRED LIVE AIR QUALITY (AQI) CARD ================= -->
+            <div class="glass aqi-hero-card" id="aqiHeroCardView">
+                <div class="aqi-hero-header">
+                    <div class="aqi-live-badge">
+                        <span class="live-dot"></span>
+                        <span>Live AQI</span>
+                    </div>
+                    <div class="aqi-status-group">
+                        <span class="aqi-status-label">Air Quality is</span>
+                        <span class="aqi-status-pill aqi-poor-pill" id="aqiStatusPill">Poor</span>
+                    </div>
+                </div>
+
+                <div class="aqi-hero-score-row">
+                    <h1 class="aqi-hero-score" id="aqiScoreVal">141</h1>
+                    <span class="aqi-unit-label">AQI (US)</span>
+                </div>
+
+                <!-- PM2.5 & PM10 Pollutant Readings -->
+                <div class="pollutant-row">
+                    <div class="pollutant-item">
+                        <span class="pollutant-name">PM2.5 :</span>
+                        <strong class="pollutant-val" id="pm25Val">54 µg/m³</strong>
+                    </div>
+                    <div class="pollutant-item">
+                        <span class="pollutant-name">PM10 :</span>
+                        <strong class="pollutant-val" id="pm10Val">67 µg/m³</strong>
+                    </div>
+                </div>
+
+                <!-- AQI Multi-Color Spectrum Scale -->
+                <div class="aqi-spectrum-container">
+                    <div class="aqi-spectrum-labels">
+                        <span>Good</span>
+                        <span>Moderate</span>
+                        <span>Poor</span>
+                        <span>Unhealthy</span>
+                        <span>Severe</span>
+                        <span>Hazardous</span>
+                    </div>
+                    <div class="aqi-spectrum-bar">
+                        <div class="aqi-spectrum-gradient"></div>
+                        <div class="aqi-spectrum-dot" id="aqiSpectrumDot" style="left: 35%;"></div>
+                    </div>
+                    <div class="aqi-spectrum-ticks">
+                        <span>0</span>
+                        <span>50</span>
+                        <span>100</span>
+                        <span>150</span>
+                        <span>200</span>
+                        <span>300</span>
+                        <span>301+</span>
+                    </div>
+                </div>
+
+                <!-- Weather Conditions Subcard -->
+                <div class="aqi-weather-subcard">
+                    <div class="aqi-subcard-top">
+                        <div class="aqi-subcard-weather">
+                            <img id="aqiSubIcon" src="https://openweathermap.org/img/wn/10d@2x.png" alt="icon">
+                            <h3 id="aqiSubTemp">29 °C</h3>
+                            <span id="aqiSubDesc">Patchy rain nearby</span>
+                        </div>
+                    </div>
+                    <hr class="aqi-subcard-divider">
+                    <div class="aqi-subcard-bottom">
+                        <div><i class="fa-solid fa-droplet"></i> <span id="aqiSubHumidity">68 %</span></div>
+                        <div><i class="fa-solid fa-wind"></i> <span id="aqiSubWind">16.9 km/h</span></div>
+                        <div><i class="fa-solid fa-sun"></i> <span id="aqiSubUV">0</span></div>
+                    </div>
+                </div>
+
+                <!-- Timestamp -->
+                <p class="aqi-update-time" id="aqiUpdateTime">Last Updated: 2026-07-24 03:10 (Local Time)</p>
+            </div>
+
+            <!-- Today's Detailed Highlights Grid -->
+            <div class="highlights">
+                <div class="section-title">
+                    <h2><i class="fa-solid fa-chart-simple"></i> Today's Highlights</h2>
+                </div>
+
+                <div class="aqi-highlights-grid">
+
+                    <!-- CARD 1: Wind Direction & Speed -->
+                    <div class="aqi-card wind-dir-card">
+                        <div class="wind-dir-left">
+                            <div class="compass-dial">
+                                <div class="dial-ticks"></div>
+                                <span class="cardinal n">N</span>
+                                <span class="cardinal e">E</span>
+                                <span class="cardinal s">S</span>
+                                <span class="cardinal w">W</span>
+                                <div class="compass-pointer" id="compassPointer">
+                                    <div class="pointer-arrow"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="wind-dir-right">
+                            <div class="wind-dir-deg">
+                                <h3 id="windDegreeText">91° E</h3>
+                                <span class="aqi-sublabel">Direction</span>
+                            </div>
+                            <hr class="aqi-divider">
+                            <div class="wind-dir-speed">
+                                <h3 id="windSpeedText">16.9 km/h</h3>
+                                <span class="aqi-sublabel">Wind Speed</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CARD 2: Gust Speed -->
+                    <div class="aqi-card gust-card">
+                        <div class="gust-header-icon">
+                            <i class="fa-solid fa-wind gust-icon"></i>
+                            <i class="fa-solid fa-leaf leaf-icon"></i>
+                        </div>
+                        <span class="aqi-card-label">Gust Speed</span>
+                        <h2 class="aqi-card-val" id="gustSpeedText">6.3 m/s</h2>
+                    </div>
+
+                    <!-- CARD 3: Cloud Cover & Visibility -->
+                    <div class="aqi-card cloud-vis-card">
+                        <div class="cloud-illustration">
+                            <i class="fa-solid fa-cloud cloud-bg-icon cloud-1"></i>
+                            <i class="fa-solid fa-cloud cloud-bg-icon cloud-2"></i>
+                        </div>
+                        <div class="aqi-row">
+                            <span class="aqi-row-label">Cloud Cover</span>
+                            <span class="aqi-row-val" id="cloudCoverText">65 %</span>
+                        </div>
+                        <hr class="aqi-divider">
+                        <div class="aqi-row">
+                            <span class="aqi-row-label">Visibility</span>
+                            <span class="aqi-row-val" id="visibilityText">10 km</span>
+                        </div>
+                    </div>
+
+                    <!-- CARD 4: Precipitation -->
+                    <div class="aqi-card precip-card">
+                        <span class="aqi-card-label">Precipitation</span>
+                        <div class="precip-val-row">
+                            <div class="precip-icon-wrapper">
+                                <i class="fa-solid fa-cloud-sun-rain precip-icon"></i>
+                            </div>
+                            <h2 class="aqi-card-val" id="precipValText">0.12 mm</h2>
+                        </div>
+                        <p class="aqi-subtext" id="precipSubtext">Current precipitation chances sit at 0.12mm</p>
+                    </div>
+
+                    <!-- CARD 5: Pressure -->
+                    <div class="aqi-card pressure-card">
+                        <div class="pressure-top-row">
+                            <div class="pressure-gauge-wrapper">
+                                <svg class="pressure-gauge-svg" viewBox="0 0 100 100">
+                                    <circle class="gauge-bg" cx="50" cy="50" r="38" stroke="rgba(255,255,255,0.2)" stroke-width="4" fill="none" stroke-dasharray="180" stroke-dashoffset="30"/>
+                                    <line class="gauge-needle" id="pressureNeedle" x1="50" y1="50" x2="50" y2="20" stroke="#ff7e5f" stroke-width="3.5" stroke-linecap="round"/>
+                                    <circle cx="50" cy="50" r="4.5" fill="#ffffff"/>
+                                </svg>
+                            </div>
+                            <div class="pressure-info">
+                                <span class="aqi-card-label">Pressure</span>
+                                <h2 class="aqi-card-val" id="pressureValText">998 mb</h2>
+                            </div>
+                        </div>
+                        <div class="spectrum-bar">
+                            <div class="spectrum-gradient pressure-gradient"></div>
+                            <div class="spectrum-dot" id="pressureSpectrumDot" style="left: 50%;"></div>
+                        </div>
+                        <p class="aqi-subtext" id="pressureSubtext">Current pressure level is a 998mb.</p>
+                    </div>
+
+                    <!-- CARD 6: UV Index -->
+                    <div class="aqi-card uv-card">
+                        <span class="aqi-card-label">UV Index</span>
+                        <h2 class="aqi-card-val" id="uvValText">0 Low</h2>
+                        <div class="spectrum-bar">
+                            <div class="spectrum-gradient uv-gradient"></div>
+                            <div class="spectrum-dot" id="uvSpectrumDot" style="left: 5%;"></div>
+                        </div>
+                        <p class="aqi-subtext" id="uvSubtext">The present UV index is 0, consider suggestions for same!</p>
+                    </div>
+
+                    <!-- CARD 7: Solar Arc & Golden Hour Tracker -->
+                    <div class="aqi-card solar-arc-card">
+                        <div class="solar-card-header">
+                            <span class="aqi-card-label"><i class="fa-solid fa-sun solar-sun-icon"></i> Solar Arc & Golden Hour Tracker</span>
+                            <span class="golden-hour-badge" id="goldenHourBadge">📸 Golden Hour: 06:45 PM</span>
+                        </div>
+                        
+                        <div class="solar-arc-visual">
+                            <svg class="solar-arc-svg" viewBox="0 0 200 100">
+                                <path class="solar-path-bg" d="M 20,90 A 80,80 0 0,1 180,90" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="4" stroke-dasharray="4,4"/>
+                                <path class="solar-path-active" id="sunArcActivePath" d="M 20,90 A 80,80 0 0,1 100,10" fill="none" stroke="url(#sunGradient)" stroke-width="4"/>
+                                <defs>
+                                    <linearGradient id="sunGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#ff7e5f" />
+                                        <stop offset="50%" stop-color="#feb47b" />
+                                        <stop offset="100%" stop-color="#ffeb3b" />
+                                    </linearGradient>
+                                </defs>
+                                <circle id="sunDot" cx="100" cy="10" r="7" fill="#ffeb3b" filter="drop-shadow(0 0 8px #ffeb3b)"/>
+                            </svg>
+                            <div class="sun-horizon-line"></div>
+                        </div>
+
+                        <div class="solar-times-row">
+                            <div class="solar-time-item">
+                                <i class="fa-solid fa-cloud-sun sunrise-icon"></i>
+                                <div>
+                                    <span>Sunrise</span>
+                                    <strong id="sunriseTimeText">05:42 AM</strong>
+                                </div>
+                            </div>
+                            <div class="solar-time-item center-item">
+                                <i class="fa-solid fa-hourglass-half"></i>
+                                <div>
+                                    <span>Daylight Remaining</span>
+                                    <strong id="daylightRemainText">8 hrs 15 mins</strong>
+                                </div>
+                            </div>
+                            <div class="solar-time-item">
+                                <i class="fa-solid fa-sun-plant-wilt sunset-icon"></i>
+                                <div>
+                                    <span>Sunset</span>
+                                    <strong id="sunsetTimeText">07:15 PM</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </aside>
+
+    </main>
+
+    <!-- ================= SIDE-BY-SIDE CITY COMPARISON MODAL ================= -->
+    <div class="compare-modal-overlay hidden" id="compareModal">
+        <div class="compare-modal-content glass">
+            <div class="compare-modal-header">
+                <h2><i class="fa-solid fa-code-compare"></i> Side-by-Side City Comparison</h2>
+                <button id="closeCompareBtn" class="close-modal-btn" title="Close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="compare-inputs-bar">
+                <div class="compare-input-group">
+                    <label>City 1</label>
+                    <div class="compare-input-wrap">
+                        <input type="text" id="compareCity1Input" placeholder="Enter City 1 (e.g. Delhi)" value="Delhi">
+                        <button id="useCurrentCity1Btn" title="Use Currently Loaded City">Current</button>
+                    </div>
+                </div>
+                <div class="compare-vs-badge">VS</div>
+                <div class="compare-input-group">
+                    <label>City 2</label>
+                    <div class="compare-input-wrap">
+                        <input type="text" id="compareCity2Input" placeholder="Enter City 2 (e.g. Shimla)" value="Shimla">
+                    </div>
+                </div>
+                <button id="runCompareBtn" class="run-compare-btn">
+                    <i class="fa-solid fa-bolt"></i> Compare Now
+                </button>
+            </div>
+
+            <!-- Comparison Cards & Metrics Results -->
+            <div class="compare-results-container" id="compareResults">
+                <div class="compare-cards-row">
+                    <!-- City 1 Card -->
+                    <div class="compare-city-card" id="compareCity1Card">
+                        <div class="compare-card-header">
+                            <h3 id="compCity1Name">Delhi, IN</h3>
+                            <span class="compare-flag" id="compCity1Flag">🇮🇳</span>
+                        </div>
+                        <div class="compare-main-temp">
+                            <img id="compCity1Icon" src="https://openweathermap.org/img/wn/01d@2x.png" alt="icon">
+                            <h2 id="compCity1Temp">31°</h2>
+                        </div>
+                        <p class="compare-cond-text" id="compCity1Cond">Clear Sky</p>
+                        <div class="compare-badge-pill" id="compCity1AQIPill">AQI: 141 (Poor)</div>
+                    </div>
+
+                    <!-- Comparison Summary Highlights Center -->
+                    <div class="compare-summary-center" id="compareSummaryCenter">
+                        <h4>Insights</h4>
+                        <p id="compInsightText">Comparing Delhi and Shimla...</p>
+                    </div>
+
+                    <!-- City 2 Card -->
+                    <div class="compare-city-card" id="compareCity2Card">
+                        <div class="compare-card-header">
+                            <h3 id="compCity2Name">Shimla, IN</h3>
+                            <span class="compare-flag" id="compCity2Flag">🇮🇳</span>
+                        </div>
+                        <div class="compare-main-temp">
+                            <img id="compCity2Icon" src="https://openweathermap.org/img/wn/03d@2x.png" alt="icon">
+                            <h2 id="compCity2Temp">16°</h2>
+                        </div>
+                        <p class="compare-cond-text" id="compCity2Cond">Broken Clouds</p>
+                        <div class="compare-badge-pill" id="compCity2AQIPill">AQI: 42 (Good)</div>
+                    </div>
+                </div>
+
+                <!-- Visual Comparison Bars -->
+                <div class="comparison-metrics-list">
+                    <!-- Metric 1: Temperature -->
+                    <div class="metric-bar-group">
+                        <div class="metric-bar-label">
+                            <span><i class="fa-solid fa-temperature-high"></i> Temperature Difference</span>
+                            <span id="tempDiffText">Delhi is 15° warmer</span>
+                        </div>
+                        <div class="metric-dual-container">
+                            <div class="metric-city-row">
+                                <span class="metric-city-tag" id="tempCity1Tag">Delhi</span>
+                                <div class="bar-track"><div class="bar-left" id="compTempBar1" style="width: 70%;">31°C</div></div>
+                            </div>
+                            <div class="metric-city-row">
+                                <span class="metric-city-tag" id="tempCity2Tag">Shimla</span>
+                                <div class="bar-track"><div class="bar-right" id="compTempBar2" style="width: 35%;">16°C</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Metric 2: Air Quality (AQI) -->
+                    <div class="metric-bar-group">
+                        <div class="metric-bar-label">
+                            <span><i class="fa-solid fa-mask-face"></i> Air Quality Index (AQI) Comparison</span>
+                            <span id="aqiDiffText">Shimla has cleaner air (99 pts lower)</span>
+                        </div>
+                        <div class="metric-dual-container">
+                            <div class="metric-city-row">
+                                <span class="metric-city-tag" id="aqiCity1Tag">Delhi</span>
+                                <div class="bar-track"><div class="bar-left aqi-bad" id="compAQIBar1" style="width: 70%;">141 (Poor)</div></div>
+                            </div>
+                            <div class="metric-city-row">
+                                <span class="metric-city-tag" id="aqiCity2Tag">Shimla</span>
+                                <div class="bar-track"><div class="bar-right aqi-good-b" id="compAQIBar2" style="width: 25%;">42 (Good)</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Metric 3: Humidity -->
+                    <div class="metric-bar-group">
+                        <div class="metric-bar-label">
+                            <span><i class="fa-solid fa-droplet"></i> Humidity Level</span>
+                            <span id="humidityDiffText">Shimla is 36% more humid</span>
+                        </div>
+                        <div class="metric-dual-container">
+                            <div class="metric-city-row">
+                                <span class="metric-city-tag" id="humCity1Tag">Delhi</span>
+                                <div class="bar-track"><div class="bar-left" id="compHumBar1" style="width: 62%;">62%</div></div>
+                            </div>
+                            <div class="metric-city-row">
+                                <span class="metric-city-tag" id="humCity2Tag">Shimla</span>
+                                <div class="bar-track"><div class="bar-right" id="compHumBar2" style="width: 98%;">98%</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Metric 4: Wind Speed -->
+                    <div class="metric-bar-group">
+                        <div class="metric-bar-label">
+                            <span><i class="fa-solid fa-wind"></i> Wind Speed Comparison</span>
+                            <span id="windDiffText">Delhi is 7.2 km/h windier</span>
+                        </div>
+                        <div class="metric-dual-container">
+                            <div class="metric-city-row">
+                                <span class="metric-city-tag" id="windCity1Tag">Delhi</span>
+                                <div class="bar-track"><div class="bar-left" id="compWindBar1" style="width: 80%;">8 km/h</div></div>
+                            </div>
+                            <div class="metric-city-row">
+                                <span class="metric-city-tag" id="windCity2Tag">Shimla</span>
+                                <div class="bar-track"><div class="bar-right" id="compWindBar2" style="width: 10%;">0.8 km/h</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ERROR NOTIFICATION POPUP ================= -->
+    <div class="error-popup hidden" id="errorPopup">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <p id="errorText">City not found.</p>
+    </div>
+
+    <!-- ================= FLOATING ACTION BUTTONS ================= -->
+    <div class="floating-buttons">
+        <button id="voiceBtn" title="Voice Search">
+            <i class="fa-solid fa-microphone"></i>
+        </button>
+        <button id="scrollTopBtn" title="Scroll to Top">
+            <i class="fa-solid fa-arrow-up"></i>
+        </button>
+    </div>
+
+    <!-- ================= FOOTER ================= -->
+    <footer>
+        <div class="footer-content">
+            <h2>SkyCast</h2>
+            <p>Next-Generation Weather Intelligence System</p>
+            <div class="social-icons">
+                <a href="https://github.com/ashutosh-6398" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                <a href="https://www.linkedin.com/feed/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                <a href="mailto:palashutosh6398@gmail.com" aria-label="Email"><i class="fa-solid fa-envelope"></i></a>
+            </div>
+            <p class="copyright">© 2026 SkyCast Engine. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- ================= WEATHER ALERT MANAGER MODAL ================= -->
+    <div id="alertModal" class="compare-modal-overlay hidden">
+        <div class="compare-modal-content alert-modal-container">
+            <div class="compare-modal-header">
+                <h2><i class="fa-solid fa-bell-subtle"></i> Weather Alert & Notification Manager</h2>
+                <button id="closeAlertModalBtn" class="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="alert-modal-desc">Customize your real-time notification preferences. Receive instant desktop push alerts and toast banners when severe conditions strike your area.</p>
+
+            <div class="alert-settings-grid">
+                <div class="alert-setting-card">
+                    <div class="alert-card-info">
+                        <i class="fa-solid fa-cloud-showers-heavy alert-icon-rain"></i>
+                        <div>
+                            <h4>Rain & Drizzle Warnings</h4>
+                            <p>Instant alerts when precipitation is detected</p>
+                        </div>
+                    </div>
+                    <label class="alert-switch">
+                        <input type="checkbox" id="alertRainToggle" checked>
+                        <span class="alert-slider"></span>
+                    </label>
+                </div>
+
+                <div class="alert-setting-card">
+                    <div class="alert-card-info">
+                        <i class="fa-solid fa-bolt-lightning alert-icon-storm"></i>
+                        <div>
+                            <h4>Severe Storm & Lightning</h4>
+                            <p>Immediate warnings during nearby thunderstorms</p>
+                        </div>
+                    </div>
+                    <label class="alert-switch">
+                        <input type="checkbox" id="alertStormToggle" checked>
+                        <span class="alert-slider"></span>
+                    </label>
+                </div>
+
+                <div class="alert-setting-card">
+                    <div class="alert-card-info">
+                        <i class="fa-solid fa-sun alert-icon-uv"></i>
+                        <div>
+                            <h4>Extreme UV Index Spikes</h4>
+                            <p>Notify when UV reaches Very High levels (UV >= 8)</p>
+                        </div>
+                    </div>
+                    <label class="alert-switch">
+                        <input type="checkbox" id="alertUVToggle" checked>
+                        <span class="alert-slider"></span>
+                    </label>
+                </div>
+
+                <div class="alert-setting-card">
+                    <div class="alert-card-info">
+                        <i class="fa-solid fa-smog alert-icon-aqi"></i>
+                        <div>
+                            <h4>Unhealthy Air Quality (AQI)</h4>
+                            <p>Alert when AQI enters hazardous ranges (AQI >= 150)</p>
+                        </div>
+                    </div>
+                    <label class="alert-switch">
+                        <input type="checkbox" id="alertAQIToggle" checked>
+                        <span class="alert-slider"></span>
+                    </label>
+                </div>
+
+                <div class="alert-setting-card">
+                    <div class="alert-card-info">
+                        <i class="fa-solid fa-wind alert-icon-wind"></i>
+                        <div>
+                            <h4>High Wind & Gust Warnings</h4>
+                            <p>Alert when wind gusts exceed 40 km/h</p>
+                        </div>
+                    </div>
+                    <label class="alert-switch">
+                        <input type="checkbox" id="alertWindToggle" checked>
+                        <span class="alert-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="alert-modal-footer">
+                <button id="requestPermissionBtn" class="action-btn-secondary"><i class="fa-solid fa-desktop"></i> Enable Desktop Push</button>
+                <button id="saveAlertsBtn" class="run-compare-btn"><i class="fa-solid fa-floppy-disk"></i> Save Preferences</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= SOCIAL STORY & SNAPSHOT MODAL ================= -->
+    <div id="storyModal" class="compare-modal-overlay hidden">
+        <div class="compare-modal-content story-modal-container">
+            <div class="compare-modal-header">
+                <h2><i class="fa-solid fa-camera-retro"></i> Weather Story Snapshot</h2>
+                <button id="closeStoryModalBtn" class="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="alert-modal-desc">Generate a high-res 9:16 vertical Instagram Story snapshot of your city's weather. Download and share anywhere!</p>
+
+            <!-- 9:16 Story Card Container -->
+            <div class="story-preview-wrapper">
+                <div id="storyCard" class="story-card">
+                    <!-- Brand Header -->
+                    <div class="story-brand">
+                        <div class="story-logo">
+                            <i class="fa-solid fa-cloud-sun-rain"></i>
+                            <span>SkyCast</span>
+                        </div>
+                        <span id="storyDateBadge" class="story-date-badge">Friday, 24 Jul</span>
+                    </div>
+
+                    <!-- City & Country -->
+                    <div class="story-location">
+                        <h2 id="storyCityName">Delhi, IN</h2>
+                        <span id="storyAQIPill" class="story-aqi-pill">AQI • Good</span>
+                    </div>
+
+                    <!-- Main Hero Weather Display -->
+                    <div class="story-hero-display">
+                        <img id="storyWeatherIcon" src="https://openweathermap.org/img/wn/01d@4x.png" alt="Weather Icon" class="story-weather-img">
+                        <h1 id="storyTempVal" class="story-temp">32°C</h1>
+                        <h3 id="storyConditionText" class="story-condition">Haze & Scattered Clouds</h3>
+                    </div>
+
+                    <!-- Stat Badges Row -->
+                    <div class="story-stats-grid">
+                        <div class="story-stat-item">
+                            <span>Feels Like</span>
+                            <strong id="storyFeelsLikeVal">36°C</strong>
+                        </div>
+                        <div class="story-stat-item">
+                            <span>Humidity</span>
+                            <strong id="storyHumidityVal">65%</strong>
+                        </div>
+                        <div class="story-stat-item">
+                            <span>Wind Speed</span>
+                            <strong id="storyWindVal">14 km/h</strong>
+                        </div>
+                    </div>
+
+                    <!-- Footer Sunset Highlight -->
+                    <div class="story-card-footer">
+                        <span id="storySunBadge" class="story-sun-badge">🌇 Sunset: 19:15</span>
+                        <span class="story-watermark">skycast.app</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="story-modal-footer">
+                <button id="downloadStoryBtn" class="run-compare-btn"><i class="fa-solid fa-download"></i> Download PNG</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= THIRD PARTY LIBRARIES ================= -->
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2canvas & jsPDF for PDF Report Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- ================= APPLICATION SCRIPTS ================= -->
+    <script src="js/helpers.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/voice.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/story.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>

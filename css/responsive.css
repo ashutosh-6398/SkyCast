@@ -1,0 +1,493 @@
+/* ==========================================================
+   SKYCAST WEATHER APP - COMPREHENSIVE RESPONSIVE DESIGN
+   ========================================================== */
+
+/* 1. Ultra Wide Screens & 4K Displays (>= 1600px) */
+@media (min-width: 1600px) {
+    .container {
+        max-width: 1520px;
+        gap: 36px;
+    }
+    .temperature h2 {
+        font-size: 5.6rem;
+    }
+    .weather-header h1 {
+        font-size: 2.6rem;
+    }
+    .extra-info div {
+        padding: 20px;
+    }
+    .radar-map-container {
+        height: 380px;
+    }
+    .aqi-card {
+        padding: 24px;
+    }
+    .aqi-card-val {
+        font-size: 2rem;
+    }
+}
+
+/* 2. Standard Laptops & Desktops (1200px - 1440px) */
+@media (max-width: 1200px) {
+    .container {
+        grid-template-columns: 1.5fr 1fr;
+        gap: 22px;
+        width: 95%;
+    }
+    .aqi-highlights-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+    }
+    .icon-badge-wrapper img {
+        width: 95px;
+    }
+}
+
+/* 3. Tablets Landscape & Small Laptops (992px - 1199px) */
+@media (max-width: 992px) {
+    .container {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        padding: 20px 0 60px 0;
+    }
+
+    .left-panel, .right-panel {
+        width: 100%;
+    }
+
+    .navbar {
+        flex-wrap: wrap;
+        gap: 14px;
+    }
+
+    .extra-info {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .aqi-highlights-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+    }
+
+    .radar-map-container {
+        height: 320px;
+    }
+
+    .chart-wrapper {
+        height: 160px;
+    }
+}
+
+/* 4. Tablets Portrait & Large Mobile (768px - 991px) */
+@media (max-width: 768px) {
+    header {
+        padding: 16px 0 10px 0;
+    }
+
+    .navbar {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .logo i {
+        font-size: 1.9rem;
+    }
+
+    .logo h2 {
+        font-size: 1.5rem;
+    }
+
+    .nav-right {
+        gap: 8px;
+    }
+
+    .unit-btn {
+        padding: 5px 10px;
+        font-size: 0.82rem;
+    }
+
+    .nav-right button#locationBtn,
+    .nav-right button#soundBtn,
+    .nav-right button#pwaInstallBtn,
+    .nav-right button#themeBtn {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .search-box {
+        gap: 10px;
+    }
+
+    .search-box input {
+        height: 54px;
+        font-size: 15px;
+        padding-left: 46px;
+    }
+
+    .search-icon {
+        left: 16px;
+        font-size: 16px;
+    }
+
+    .search-box button {
+        width: 54px;
+        height: 54px;
+        font-size: 18px;
+    }
+
+    .quick-cities {
+        gap: 6px;
+    }
+
+    .quick-tag {
+        font-size: 0.76rem;
+        padding: 4px 10px;
+    }
+
+    .weather-card {
+        padding: 20px;
+    }
+
+    .weather-header {
+        align-items: flex-start;
+    }
+
+    .weather-header h1 {
+        font-size: 1.7rem;
+    }
+
+    .icon-badge-wrapper img {
+        width: 80px;
+    }
+
+    .temperature h2 {
+        font-size: 3.8rem;
+    }
+
+    .deg-symbol {
+        font-size: 2.2rem;
+    }
+
+    .extra-info {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .extra-info div {
+        padding: 12px 8px;
+    }
+
+    .extra-info strong {
+        font-size: 1.1rem;
+    }
+
+    /* AQI Highlights Responsive Layout */
+    .aqi-highlights-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .aqi-card {
+        padding: 16px 18px;
+        border-radius: 20px;
+    }
+
+    .aqi-card-val {
+        font-size: 1.5rem;
+    }
+
+    .wind-dir-left {
+        flex: 0 0 70px;
+    }
+
+    .compass-dial {
+        width: 68px;
+        height: 68px;
+    }
+
+    .wind-dir-deg h3, .wind-dir-speed h3 {
+        font-size: 1.15rem;
+    }
+
+    .forecast-item {
+        grid-template-columns: 85px 35px 1fr auto;
+        padding: 8px 12px;
+        font-size: 0.88rem;
+    }
+
+    .radar-map-container {
+        height: 280px;
+    }
+}
+
+/* 5. Mobile Devices Portrait (576px - 767px) */
+@media (max-width: 576px) {
+    .container {
+        width: 92%;
+        padding: 10px 0 50px 0;
+    }
+
+    .logo h2 {
+        font-size: 1.35rem;
+    }
+
+    .city-title-row h1 {
+        font-size: 1.5rem;
+    }
+
+    .temperature h2 {
+        font-size: 3.2rem;
+    }
+
+    .extra-info {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .extra-info div {
+        padding: 10px 6px;
+    }
+
+    .extra-info i {
+        font-size: 20px;
+        margin-bottom: 4px;
+    }
+
+    .extra-info span {
+        font-size: 0.75rem;
+    }
+
+    .extra-info strong {
+        font-size: 1rem;
+    }
+
+    /* AQI Highlights Mobile Layout */
+    .aqi-highlights-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .aqi-card {
+        padding: 14px 12px;
+        border-radius: 18px;
+    }
+
+    .aqi-card-label {
+        font-size: 0.8rem;
+    }
+
+    .aqi-card-val {
+        font-size: 1.35rem;
+    }
+
+    .aqi-subtext {
+        font-size: 0.74rem;
+    }
+
+    .wind-dir-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .wind-dir-left {
+        flex: 0 0 auto;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .compass-dial {
+        width: 64px;
+        height: 64px;
+    }
+
+    .radar-map-container {
+        height: 240px;
+    }
+
+    .forecast-item {
+        grid-template-columns: 75px 32px 1fr auto;
+        padding: 8px 10px;
+        font-size: 0.82rem;
+    }
+
+    .fav-pill {
+        padding: 6px 12px;
+        font-size: 0.82rem;
+    }
+
+    .floating-buttons {
+        bottom: 20px;
+        right: 20px;
+    }
+
+    #voiceBtn, #scrollTopBtn {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+    }
+}
+
+/* 6. Compact Mobile Phones & Single Column Layout (< 480px) */
+@media (max-width: 480px) {
+    .navbar {
+        gap: 10px;
+    }
+
+    .logo h2 {
+        font-size: 1.2rem;
+    }
+
+    .unit-toggle-header {
+        padding: 2px;
+    }
+
+    .unit-btn {
+        padding: 4px 8px;
+        font-size: 0.78rem;
+    }
+
+    .nav-right button#locationBtn,
+    .nav-right button#soundBtn,
+    .nav-right button#pwaInstallBtn,
+    .nav-right button#themeBtn {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+
+    .temperature h2 {
+        font-size: 2.8rem;
+    }
+
+    .deg-symbol {
+        font-size: 1.8rem;
+    }
+
+    .extra-info {
+        grid-template-columns: 1fr;
+    }
+
+    .aqi-highlights-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .wind-dir-card {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .wind-dir-left {
+        flex: 0 0 74px;
+    }
+
+    .forecast-item {
+        grid-template-columns: 65px 28px 1fr auto;
+        gap: 6px;
+        font-size: 0.78rem;
+    }
+
+    .hour-card {
+        min-width: 72px;
+        padding: 10px 6px;
+    }
+
+    .hour-temp {
+        font-size: 0.95rem;
+    }
+}
+
+/* Touch & Mobile UX Optimizations */
+.hourly-container {
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+}
+
+.hour-card {
+    scroll-snap-align: start;
+}
+
+/* Notch & Safe Area Insets for Modern Mobile Phones */
+@supports (padding: max(0px)) {
+    body {
+        padding-left: max(0px, env(safe-area-inset-left));
+        padding-right: max(0px, env(safe-area-inset-right));
+        padding-bottom: max(0px, env(safe-area-inset-bottom));
+    }
+}
+
+/* ==========================================================
+   ADDITIONAL RESPONSIVE LAYER - SIDE-BY-SIDE MODAL & GRID FIXES
+   ========================================================== */
+
+/* 7. Tablet & Mobile Modal Responsiveness (< 768px) */
+@media (max-width: 768px) {
+    .compare-modal-content {
+        width: 95%;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 20px 16px;
+    }
+
+    .compare-inputs-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        padding: 14px;
+    }
+
+    .compare-vs-badge {
+        align-self: center;
+        margin: 4px 0;
+    }
+
+    .compare-cards-row {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .compare-insights-card {
+        grid-row: 2; /* Put insight card in the middle between City 1 and City 2 */
+        border-top: 1px dashed var(--border-color-tint);
+        border-bottom: 1px dashed var(--border-color-tint);
+        padding: 16px 0;
+    }
+}
+
+/* 8. Mobile Navbar & Solar Arc Adaptations (< 600px) */
+@media (max-width: 600px) {
+    .nav-btn-text {
+        display: none !important;
+    }
+
+    .nav-compare-btn, .nav-export-btn, .nav-alert-btn {
+        width: 40px !important;
+        height: 40px !important;
+        padding: 0 !important;
+        justify-content: center !important;
+        border-radius: 50% !important;
+    }
+
+    .nav-compare-btn i, .nav-export-btn i, .nav-alert-btn i {
+        margin: 0 !important;
+        font-size: 16px;
+    }
+}
+
+/* 9. Small Grid Layout Alignment Override (< 480px) */
+@media (max-width: 480px) {
+    .solar-arc-card {
+        grid-column: span 1 !important;
+    }
+
+    .solar-times-row {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+        padding-left: 10px;
+    }
+}
