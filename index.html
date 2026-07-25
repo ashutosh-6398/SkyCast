@@ -54,16 +54,8 @@
                     <button class="unit-btn" id="fahrenheitBtn" title="Imperial (°F)">°F</button>
                 </div>
 
-                <button id="compareBtn" class="nav-compare-btn" title="Compare 2 Cities Side-by-Side">
-                    <i class="fa-solid fa-code-compare"></i> <span class="nav-btn-text">Compare</span>
-                </button>
-
                 <button id="exportPdfBtn" class="nav-export-btn" title="Export PDF Weather & AQI Report">
                     <i class="fa-solid fa-file-pdf"></i> <span class="nav-btn-text">Export PDF</span>
-                </button>
-
-                <button id="storyBtn" class="nav-export-btn" title="Share Weather Story / Social Snapshot">
-                    <i class="fa-solid fa-camera"></i> <span class="nav-btn-text">Share Story</span>
                 </button>
 
                 <button id="soundBtn" title="Toggle Weather Audio Soundscape">
@@ -483,150 +475,6 @@
 
     </main>
 
-    <!-- ================= SIDE-BY-SIDE CITY COMPARISON MODAL ================= -->
-    <div class="compare-modal-overlay hidden" id="compareModal">
-        <div class="compare-modal-content glass">
-            <div class="compare-modal-header">
-                <h2><i class="fa-solid fa-code-compare"></i> Side-by-Side City Comparison</h2>
-                <button id="closeCompareBtn" class="close-modal-btn" title="Close"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-
-            <div class="compare-inputs-bar">
-                <div class="compare-input-group">
-                    <label>City 1</label>
-                    <div class="compare-input-wrap">
-                        <input type="text" id="compareCity1Input" placeholder="Enter City 1 (e.g. Delhi)" value="Delhi">
-                        <button id="useCurrentCity1Btn" title="Use Currently Loaded City">Current</button>
-                    </div>
-                </div>
-                <div class="compare-vs-badge">VS</div>
-                <div class="compare-input-group">
-                    <label>City 2</label>
-                    <div class="compare-input-wrap">
-                        <input type="text" id="compareCity2Input" placeholder="Enter City 2 (e.g. Shimla)" value="Shimla">
-                    </div>
-                </div>
-                <button id="runCompareBtn" class="run-compare-btn">
-                    <i class="fa-solid fa-bolt"></i> Compare Now
-                </button>
-            </div>
-
-            <!-- Comparison Cards & Metrics Results -->
-            <div class="compare-results-container" id="compareResults">
-                <div class="compare-cards-row">
-                    <!-- City 1 Card -->
-                    <div class="compare-city-card" id="compareCity1Card">
-                        <div class="compare-card-header">
-                            <h3 id="compCity1Name">Delhi, IN</h3>
-                            <span class="compare-flag" id="compCity1Flag">🇮🇳</span>
-                        </div>
-                        <div class="compare-main-temp">
-                            <img id="compCity1Icon" src="https://openweathermap.org/img/wn/01d@2x.png" alt="icon">
-                            <h2 id="compCity1Temp">31°</h2>
-                        </div>
-                        <p class="compare-cond-text" id="compCity1Cond">Clear Sky</p>
-                        <div class="compare-badge-pill" id="compCity1AQIPill">AQI: 141 (Poor)</div>
-                    </div>
-
-                    <!-- Comparison Summary Highlights Center -->
-                    <div class="compare-summary-center" id="compareSummaryCenter">
-                        <h4>Insights</h4>
-                        <p id="compInsightText">Comparing Delhi and Shimla...</p>
-                    </div>
-
-                    <!-- City 2 Card -->
-                    <div class="compare-city-card" id="compareCity2Card">
-                        <div class="compare-card-header">
-                            <h3 id="compCity2Name">Shimla, IN</h3>
-                            <span class="compare-flag" id="compCity2Flag">🇮🇳</span>
-                        </div>
-                        <div class="compare-main-temp">
-                            <img id="compCity2Icon" src="https://openweathermap.org/img/wn/03d@2x.png" alt="icon">
-                            <h2 id="compCity2Temp">16°</h2>
-                        </div>
-                        <p class="compare-cond-text" id="compCity2Cond">Broken Clouds</p>
-                        <div class="compare-badge-pill" id="compCity2AQIPill">AQI: 42 (Good)</div>
-                    </div>
-                </div>
-
-                <!-- Visual Comparison Bars -->
-                <div class="comparison-metrics-list">
-                    <!-- Metric 1: Temperature -->
-                    <div class="metric-bar-group">
-                        <div class="metric-bar-label">
-                            <span><i class="fa-solid fa-temperature-high"></i> Temperature Difference</span>
-                            <span id="tempDiffText">Delhi is 15° warmer</span>
-                        </div>
-                        <div class="metric-dual-container">
-                            <div class="metric-city-row">
-                                <span class="metric-city-tag" id="tempCity1Tag">Delhi</span>
-                                <div class="bar-track"><div class="bar-left" id="compTempBar1" style="width: 70%;">31°C</div></div>
-                            </div>
-                            <div class="metric-city-row">
-                                <span class="metric-city-tag" id="tempCity2Tag">Shimla</span>
-                                <div class="bar-track"><div class="bar-right" id="compTempBar2" style="width: 35%;">16°C</div></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Metric 2: Air Quality (AQI) -->
-                    <div class="metric-bar-group">
-                        <div class="metric-bar-label">
-                            <span><i class="fa-solid fa-mask-face"></i> Air Quality Index (AQI) Comparison</span>
-                            <span id="aqiDiffText">Shimla has cleaner air (99 pts lower)</span>
-                        </div>
-                        <div class="metric-dual-container">
-                            <div class="metric-city-row">
-                                <span class="metric-city-tag" id="aqiCity1Tag">Delhi</span>
-                                <div class="bar-track"><div class="bar-left aqi-bad" id="compAQIBar1" style="width: 70%;">141 (Poor)</div></div>
-                            </div>
-                            <div class="metric-city-row">
-                                <span class="metric-city-tag" id="aqiCity2Tag">Shimla</span>
-                                <div class="bar-track"><div class="bar-right aqi-good-b" id="compAQIBar2" style="width: 25%;">42 (Good)</div></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Metric 3: Humidity -->
-                    <div class="metric-bar-group">
-                        <div class="metric-bar-label">
-                            <span><i class="fa-solid fa-droplet"></i> Humidity Level</span>
-                            <span id="humidityDiffText">Shimla is 36% more humid</span>
-                        </div>
-                        <div class="metric-dual-container">
-                            <div class="metric-city-row">
-                                <span class="metric-city-tag" id="humCity1Tag">Delhi</span>
-                                <div class="bar-track"><div class="bar-left" id="compHumBar1" style="width: 62%;">62%</div></div>
-                            </div>
-                            <div class="metric-city-row">
-                                <span class="metric-city-tag" id="humCity2Tag">Shimla</span>
-                                <div class="bar-track"><div class="bar-right" id="compHumBar2" style="width: 98%;">98%</div></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Metric 4: Wind Speed -->
-                    <div class="metric-bar-group">
-                        <div class="metric-bar-label">
-                            <span><i class="fa-solid fa-wind"></i> Wind Speed Comparison</span>
-                            <span id="windDiffText">Delhi is 7.2 km/h windier</span>
-                        </div>
-                        <div class="metric-dual-container">
-                            <div class="metric-city-row">
-                                <span class="metric-city-tag" id="windCity1Tag">Delhi</span>
-                                <div class="bar-track"><div class="bar-left" id="compWindBar1" style="width: 80%;">8 km/h</div></div>
-                            </div>
-                            <div class="metric-city-row">
-                                <span class="metric-city-tag" id="windCity2Tag">Shimla</span>
-                                <div class="bar-track"><div class="bar-right" id="compWindBar2" style="width: 10%;">0.8 km/h</div></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- ================= ERROR NOTIFICATION POPUP ================= -->
     <div class="error-popup hidden" id="errorPopup">
         <i class="fa-solid fa-circle-exclamation"></i>
@@ -649,7 +497,6 @@
             <h2>SkyCast</h2>
             <p>Next-Generation Weather Intelligence System</p>
             <div class="social-icons">
-                <a href="https://github.com/ashutosh-6398" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
                 <a href="https://www.linkedin.com/feed/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
                 <a href="mailto:palashutosh6398@gmail.com" aria-label="Email"><i class="fa-solid fa-envelope"></i></a>
             </div>
@@ -745,70 +592,6 @@
         </div>
     </div>
 
-    <!-- ================= SOCIAL STORY & SNAPSHOT MODAL ================= -->
-    <div id="storyModal" class="compare-modal-overlay hidden">
-        <div class="compare-modal-content story-modal-container">
-            <div class="compare-modal-header">
-                <h2><i class="fa-solid fa-camera-retro"></i> Weather Story Snapshot</h2>
-                <button id="closeStoryModalBtn" class="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <p class="alert-modal-desc">Generate a high-res 9:16 vertical Instagram Story snapshot of your city's weather. Download and share anywhere!</p>
-
-            <!-- 9:16 Story Card Container -->
-            <div class="story-preview-wrapper">
-                <div id="storyCard" class="story-card">
-                    <!-- Brand Header -->
-                    <div class="story-brand">
-                        <div class="story-logo">
-                            <i class="fa-solid fa-cloud-sun-rain"></i>
-                            <span>SkyCast</span>
-                        </div>
-                        <span id="storyDateBadge" class="story-date-badge">Friday, 24 Jul</span>
-                    </div>
-
-                    <!-- City & Country -->
-                    <div class="story-location">
-                        <h2 id="storyCityName">Delhi, IN</h2>
-                        <span id="storyAQIPill" class="story-aqi-pill">AQI • Good</span>
-                    </div>
-
-                    <!-- Main Hero Weather Display -->
-                    <div class="story-hero-display">
-                        <img id="storyWeatherIcon" src="https://openweathermap.org/img/wn/01d@4x.png" alt="Weather Icon" class="story-weather-img">
-                        <h1 id="storyTempVal" class="story-temp">32°C</h1>
-                        <h3 id="storyConditionText" class="story-condition">Haze & Scattered Clouds</h3>
-                    </div>
-
-                    <!-- Stat Badges Row -->
-                    <div class="story-stats-grid">
-                        <div class="story-stat-item">
-                            <span>Feels Like</span>
-                            <strong id="storyFeelsLikeVal">36°C</strong>
-                        </div>
-                        <div class="story-stat-item">
-                            <span>Humidity</span>
-                            <strong id="storyHumidityVal">65%</strong>
-                        </div>
-                        <div class="story-stat-item">
-                            <span>Wind Speed</span>
-                            <strong id="storyWindVal">14 km/h</strong>
-                        </div>
-                    </div>
-
-                    <!-- Footer Sunset Highlight -->
-                    <div class="story-card-footer">
-                        <span id="storySunBadge" class="story-sun-badge">🌇 Sunset: 19:15</span>
-                        <span class="story-watermark">skycast.app</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="story-modal-footer">
-                <button id="downloadStoryBtn" class="run-compare-btn"><i class="fa-solid fa-download"></i> Download PNG</button>
-            </div>
-        </div>
-    </div>
-
     <!-- ================= THIRD PARTY LIBRARIES ================= -->
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -823,7 +606,6 @@
     <script src="js/theme.js"></script>
     <script src="js/voice.js"></script>
     <script src="js/notifications.js"></script>
-    <script src="js/story.js"></script>
     <script src="js/app.js"></script>
 
 </body>

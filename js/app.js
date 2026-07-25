@@ -80,14 +80,7 @@ const shareBtn = document.getElementById("shareBtn");
 const weatherCardView = document.getElementById("weatherCardView");
 const aqiHeroCardView = document.getElementById("aqiHeroCardView");
 
-// Side-by-Side Comparison Modal Elements
-const compareBtn = document.getElementById("compareBtn");
-const compareModal = document.getElementById("compareModal");
-const closeCompareBtn = document.getElementById("closeCompareBtn");
-const compareCity1Input = document.getElementById("compareCity1Input");
-const compareCity2Input = document.getElementById("compareCity2Input");
-const useCurrentCity1Btn = document.getElementById("useCurrentCity1Btn");
-const runCompareBtn = document.getElementById("runCompareBtn");
+
 
 // PDF Export Button
 const exportPdfBtn = document.getElementById("exportPdfBtn");
@@ -819,196 +812,6 @@ async function exportWeatherReport() {
     }
 }
 
-/* ==========================================================
-                    SIDE-BY-SIDE CITY COMPARISON ENGINE
-========================================================== */
-function openCompareModal() {
-    if (compareModal) {
-        if (compareCity1Input) compareCity1Input.value = currentCity || "Delhi";
-        if (compareCity2Input && compareCity2Input.value === compareCity1Input.value) {
-            compareCity2Input.value = "Shimla";
-        }
-        compareModal.classList.remove("hidden");
-        executeCityComparison();
-    }
-}
-
-function closeCompareModal() {
-    if (compareModal) {
-        compareModal.classList.add("hidden");
-    }
-}
-
-async function executeCityComparison() {
-    const c1Name = compareCity1Input ? compareCity1Input.value.trim() : "Delhi";
-    const c2Name = compareCity2Input ? compareCity2Input.value.trim() : "Shimla";
-
-    if (!c1Name || !c2Name) return;
-
-    try {
-        let w1 = await fetchJSON(`${OPENWEATHER_BASE_URL}/weather?q=${encodeURIComponent(c1Name)}&appid=${OPENWEATHER_API_KEY}&units=${currentUnit}`).catch(() => getMockWeather(c1Name));
-        let w2 = await fetchJSON(`${OPENWEATHER_BASE_URL}/weather?q=${encodeURIComponent(c2Name)}&appid=${OPENWEATHER_API_KEY}&units=${currentUnit}`).catch(() => getMockWeather(c2Name));
-
-        let aqi1Obj = { usAqi: 141, label: "Poor" };
-        let aqi2Obj = { usAqi: 42, label: "Good" };
-
-        if (w1.coord) {
-            let aqi1Data = await fetchJSON(`${OPENWEATHER_BASE_URL}/air_pollution?lat=${w1.coord.lat}&lon=${w1.coord.lon}&appid=${OPENWEATHER_API_KEY}`).catch(() => null);
-            if (aqi1Data && aqi1Data.list && aqi1Data.list[0]) {
-                const pm25 = aqi1Data.list[0].components ? aqi1Data.list[0].components.pm2_5 : 54;
-                const usAqi = calculateUSAQI(pm25);
-                aqi1Obj = { usAqi, ...getAQIStatusDetails(usAqi) };
-            }
-        }
-
-        if (w2.coord) {
-            let aqi2Data = await fetchJSON(`${OPENWEATHER_BASE_URL}/air_pollution?lat=${w2.coord.lat}&lon=${w2.coord.lon}&appid=${OPENWEATHER_API_KEY}`).catch(() => null);
-            if (aqi2Data && aqi2Data.list && aqi2Data.list[0]) {
-                const pm25 = aqi2Data.list[0].components ? aqi2Data.list[0].components.pm2_5 : 12;
-                const usAqi = calculateUSAQI(pm25);
-                aqi2Obj = { usAqi, ...getAQIStatusDetails(usAqi) };
-            }
-        }
-
-        renderComparisonResults(w1, w2, aqi1Obj, aqi2Obj);
-    } catch (error) {
-        console.error("Comparison Error:", error);
-    }
-}
-
-function renderComparisonResults(w1, w2, aqi1, aqi2) {
-    const unitSymbol = currentUnit === "imperial" ? "°F" : "°C";
-
-    // City 1 Card
-    const compCity1Name = document.getElementById("compCity1Name");
-    const compCity1Flag = document.getElementById("compCity1Flag");
-    const compCity1Icon = document.getElementById("compCity1Icon");
-    const compCity1Temp = document.getElementById("compCity1Temp");
-    const compCity1Cond = document.getElementById("compCity1Cond");
-    const compCity1AQIPill = document.getElementById("compCity1AQIPill");
-
-    if (compCity1Name) compCity1Name.textContent = `${w1.name}${w1.sys && w1.sys.country ? ', ' + w1.sys.country : ''}`;
-    if (compCity1Flag) compCity1Flag.textContent = getCountryFlag(w1.sys ? w1.sys.country : 'IN');
-    if (compCity1Icon) compCity1Icon.src = getIcon(w1.weather[0].icon);
-    if (compCity1Temp) compCity1Temp.textContent = `${Math.round(w1.main.temp)}${unitSymbol}`;
-    if (compCity1Cond) compCity1Cond.textContent = capitalize(w1.weather[0].description);
-    if (compCity1AQIPill) compCity1AQIPill.textContent = `AQI: ${aqi1.usAqi} (${aqi1.label || 'Moderate'})`;
-
-    // City 2 Card
-    const compCity2Name = document.getElementById("compCity2Name");
-    const compCity2Flag = document.getElementById("compCity2Flag");
-    const compCity2Icon = document.getElementById("compCity2Icon");
-    const compCity2Temp = document.getElementById("compCity2Temp");
-    const compCity2Cond = document.getElementById("compCity2Cond");
-    const compCity2AQIPill = document.getElementById("compCity2AQIPill");
-
-    if (compCity2Name) compCity2Name.textContent = `${w2.name}${w2.sys && w2.sys.country ? ', ' + w2.sys.country : ''}`;
-    if (compCity2Flag) compCity2Flag.textContent = getCountryFlag(w2.sys ? w2.sys.country : 'IN');
-    if (compCity2Icon) compCity2Icon.src = getIcon(w2.weather[0].icon);
-    if (compCity2Temp) compCity2Temp.textContent = `${Math.round(w2.main.temp)}${unitSymbol}`;
-    if (compCity2Cond) compCity2Cond.textContent = capitalize(w2.weather[0].description);
-    if (compCity2AQIPill) compCity2AQIPill.textContent = `AQI: ${aqi2.usAqi} (${aqi2.label || 'Moderate'})`;
-
-    // Insights Summary
-    const compInsightText = document.getElementById("compInsightText");
-    const tempDiff = Math.abs(Math.round(w1.main.temp - w2.main.temp));
-    const warmerCity = w1.main.temp > w2.main.temp ? w1.name : w2.name;
-    const aqiDiff = Math.abs(aqi1.usAqi - aqi2.usAqi);
-    const cleanerCity = aqi1.usAqi < aqi2.usAqi ? w1.name : w2.name;
-
-    if (compInsightText) {
-        compInsightText.innerHTML = `<strong>${warmerCity}</strong> is <strong>${tempDiff}°</strong> warmer.<br><strong>${cleanerCity}</strong> has cleaner air (by <strong>${aqiDiff} AQI</strong> pts).`;
-    }
-
-    // Set City Tag Labels
-    const tempCity1Tag = document.getElementById("tempCity1Tag");
-    const tempCity2Tag = document.getElementById("tempCity2Tag");
-    const aqiCity1Tag = document.getElementById("aqiCity1Tag");
-    const aqiCity2Tag = document.getElementById("aqiCity2Tag");
-    const humCity1Tag = document.getElementById("humCity1Tag");
-    const humCity2Tag = document.getElementById("humCity2Tag");
-    const windCity1Tag = document.getElementById("windCity1Tag");
-    const windCity2Tag = document.getElementById("windCity2Tag");
-
-    if (tempCity1Tag) tempCity1Tag.textContent = w1.name;
-    if (tempCity2Tag) tempCity2Tag.textContent = w2.name;
-    if (aqiCity1Tag) aqiCity1Tag.textContent = w1.name;
-    if (aqiCity2Tag) aqiCity2Tag.textContent = w2.name;
-    if (humCity1Tag) humCity1Tag.textContent = w1.name;
-    if (humCity2Tag) humCity2Tag.textContent = w2.name;
-    if (windCity1Tag) windCity1Tag.textContent = w1.name;
-    if (windCity2Tag) windCity2Tag.textContent = w2.name;
-
-    // Metric Bar 1: Temperature
-    const tempDiffText = document.getElementById("tempDiffText");
-    const compTempBar1 = document.getElementById("compTempBar1");
-    const compTempBar2 = document.getElementById("compTempBar2");
-    if (tempDiffText) tempDiffText.textContent = `${warmerCity} is ${tempDiff}° warmer`;
-    
-    const maxTemp = Math.max(Math.abs(w1.main.temp), Math.abs(w2.main.temp), 1);
-    if (compTempBar1) {
-        compTempBar1.style.width = `${Math.max(25, (Math.abs(w1.main.temp) / maxTemp) * 100)}%`;
-        compTempBar1.textContent = `${Math.round(w1.main.temp)}${unitSymbol}`;
-    }
-    if (compTempBar2) {
-        compTempBar2.style.width = `${Math.max(25, (Math.abs(w2.main.temp) / maxTemp) * 100)}%`;
-        compTempBar2.textContent = `${Math.round(w2.main.temp)}${unitSymbol}`;
-    }
-
-    // Metric Bar 2: AQI
-    const aqiDiffText = document.getElementById("aqiDiffText");
-    const compAQIBar1 = document.getElementById("compAQIBar1");
-    const compAQIBar2 = document.getElementById("compAQIBar2");
-    if (aqiDiffText) aqiDiffText.textContent = `${cleanerCity} has cleaner air (${aqiDiff} pts lower)`;
-
-    const maxAQI = Math.max(aqi1.usAqi, aqi2.usAqi, 1);
-    if (compAQIBar1) {
-        compAQIBar1.style.width = `${Math.max(25, (aqi1.usAqi / maxAQI) * 100)}%`;
-        compAQIBar1.textContent = `${aqi1.usAqi} (${aqi1.label || 'Moderate'})`;
-        compAQIBar1.className = `bar-left ${aqi1.usAqi > 100 ? 'aqi-bad' : 'aqi-good-b'}`;
-    }
-    if (compAQIBar2) {
-        compAQIBar2.style.width = `${Math.max(25, (aqi2.usAqi / maxAQI) * 100)}%`;
-        compAQIBar2.textContent = `${aqi2.usAqi} (${aqi2.label || 'Moderate'})`;
-        compAQIBar2.className = `bar-right ${aqi2.usAqi > 100 ? 'aqi-bad' : 'aqi-good-b'}`;
-    }
-
-    // Metric Bar 3: Humidity
-    const humidityDiffText = document.getElementById("humidityDiffText");
-    const compHumBar1 = document.getElementById("compHumBar1");
-    const compHumBar2 = document.getElementById("compHumBar2");
-    const humDiff = Math.abs(w1.main.humidity - w2.main.humidity);
-    const humidCity = w1.main.humidity > w2.main.humidity ? w1.name : w2.name;
-
-    if (humidityDiffText) humidityDiffText.textContent = `${humidCity} is ${humDiff}% more humid`;
-    if (compHumBar1) {
-        compHumBar1.style.width = `${Math.max(20, w1.main.humidity)}%`;
-        compHumBar1.textContent = `${w1.main.humidity}%`;
-    }
-    if (compHumBar2) {
-        compHumBar2.style.width = `${Math.max(20, w2.main.humidity)}%`;
-        compHumBar2.textContent = `${w2.main.humidity}%`;
-    }
-
-    // Metric Bar 4: Wind Speed
-    const windDiffText = document.getElementById("windDiffText");
-    const compWindBar1 = document.getElementById("compWindBar1");
-    const compWindBar2 = document.getElementById("compWindBar2");
-    const windDiff = Math.abs(w1.wind.speed - w2.wind.speed).toFixed(1);
-    const windierCity = w1.wind.speed > w2.wind.speed ? w1.name : w2.name;
-    const speedUnit = currentUnit === "imperial" ? "mph" : "km/h";
-
-    if (windDiffText) windDiffText.textContent = `${windierCity} is ${windDiff} ${speedUnit} windier`;
-    const maxWind = Math.max(w1.wind.speed, w2.wind.speed, 1);
-    if (compWindBar1) {
-        compWindBar1.style.width = `${Math.max(20, (w1.wind.speed / maxWind) * 100)}%`;
-        compWindBar1.textContent = `${w1.wind.speed} ${speedUnit}`;
-    }
-    if (compWindBar2) {
-        compWindBar2.style.width = `${Math.max(20, (w2.wind.speed / maxWind) * 100)}%`;
-        compWindBar2.textContent = `${w2.wind.speed} ${speedUnit}`;
-    }
-}
 
 /* ==========================================================
                     HOURLY FORECAST & CHART.JS
@@ -1549,21 +1352,7 @@ if (shareBtn) {
     });
 }
 
-// Side-by-Side Comparison Engine Listeners
-if (compareBtn) compareBtn.addEventListener("click", openCompareModal);
-if (closeCompareBtn) closeCompareBtn.addEventListener("click", closeCompareModal);
-if (useCurrentCity1Btn) {
-    useCurrentCity1Btn.addEventListener("click", () => {
-        if (compareCity1Input) compareCity1Input.value = currentCity || "Delhi";
-    });
-}
-if (runCompareBtn) runCompareBtn.addEventListener("click", executeCityComparison);
 
-if (compareModal) {
-    compareModal.addEventListener("click", (e) => {
-        if (e.target === compareModal) closeCompareModal();
-    });
-}
 
 // PDF Export Button Listener
 if (exportPdfBtn) exportPdfBtn.addEventListener("click", exportWeatherReport);
@@ -1664,33 +1453,7 @@ async function initializeApp() {
         });
     }
 
-    // Social Story Snapshot Modal Listeners
-    const storyBtn = document.getElementById("storyBtn");
-    const storyModal = document.getElementById("storyModal");
-    const closeStoryModalBtn = document.getElementById("closeStoryModalBtn");
-    const downloadStoryBtn = document.getElementById("downloadStoryBtn");
 
-    if (storyBtn && storyModal) {
-        storyBtn.addEventListener("click", () => {
-            if (typeof populateStoryCard === "function") populateStoryCard();
-            storyModal.classList.remove("hidden");
-        });
-    }
-
-    if (closeStoryModalBtn && storyModal) {
-        closeStoryModalBtn.addEventListener("click", () => {
-            storyModal.classList.add("hidden");
-        });
-        storyModal.addEventListener("click", (e) => {
-            if (e.target === storyModal) storyModal.classList.add("hidden");
-        });
-    }
-
-    if (downloadStoryBtn) {
-        downloadStoryBtn.addEventListener("click", () => {
-            if (typeof downloadStoryCardPNG === "function") downloadStoryCardPNG();
-        });
-    }
 
     if (voiceBtn && cityInput) {
         initializeVoiceSearch(voiceBtn, cityInput, (city) => loadWeather(city));
